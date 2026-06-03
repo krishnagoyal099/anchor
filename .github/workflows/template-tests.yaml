@@ -85,7 +85,23 @@ jobs:
 
       # Pre-install so concurrent `cargo build-sbf` invocations don't race on
       # the platform-tools extract-then-rename.
-      - run: cargo build-sbf --tools-version v1.52 --install-only
+      - name: Install platform-tools (with retry)
+        run: |
+          for attempt in {1..5}; do
+            if cargo build-sbf --tools-version v1.52 --install-only; then
+              echo "Platform-tools installed on attempt $attempt"
+              break
+            fi
+            if [ $attempt -lt 5 ]; then
+              echo "Attempt $attempt failed, retrying in 15 seconds..."
+              sleep 15
+            else
+              echo "Failed to install platform-tools after 5 attempts"
+              exit 1
+            fi
+          done
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
       # Cache the generated project's `target/` so subsequent runs reuse
       # compiled deps. Restored before `anchor init` (which is invoked with
@@ -174,7 +190,23 @@ jobs:
           path: ~/.cargo/bin/
       - run: chmod +x ~/.cargo/bin/anchor
 
-      - run: cargo build-sbf --tools-version v1.52 --install-only
+      - name: Install platform-tools (with retry)
+        run: |
+          for attempt in {1..5}; do
+            if cargo build-sbf --tools-version v1.52 --install-only; then
+              echo "Platform-tools installed on attempt $attempt"
+              break
+            fi
+            if [ $attempt -lt 5 ]; then
+              echo "Attempt $attempt failed, retrying in 15 seconds..."
+              sleep 15
+            else
+              echo "Failed to install platform-tools after 5 attempts"
+              exit 1
+            fi
+          done
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
       # Cache cargo `target/` and `node_modules/` for the generated project.
       # `anchor init --force` leaves both alone, so the dirs survive a fresh

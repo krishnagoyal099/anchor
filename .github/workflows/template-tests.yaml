@@ -86,6 +86,8 @@ jobs:
       # Pre-install so concurrent `cargo build-sbf` invocations don't race on
       # the platform-tools extract-then-rename.
       - run: cargo build-sbf --tools-version v1.52 --install-only
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
       # Cache the generated project's `target/` so subsequent runs reuse
       # compiled deps. Restored before `anchor init` (which is invoked with
@@ -175,6 +177,8 @@ jobs:
       - run: chmod +x ~/.cargo/bin/anchor
 
       - run: cargo build-sbf --tools-version v1.52 --install-only
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
       # Cache cargo `target/` and `node_modules/` for the generated project.
       # `anchor init --force` leaves both alone, so the dirs survive a fresh
